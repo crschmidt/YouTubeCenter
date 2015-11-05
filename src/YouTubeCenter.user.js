@@ -16491,7 +16491,7 @@
                 {
                   "event": "update",
                   "callback": function(){
-                    ytcenter.player.setRatio(ytcenter.player.calculateRatio(ytcenter.player.getConfig().args.dash === "1" && ytcenter.player.getConfig().args.adaptive_fmts));
+                    ytcenter.player.setRatio(ytcenter.player.calculateRatio(ytcenter.player.getConfig().args.dash === "1" && (ytcenter.player.getConfig().args.adaptive_fmts || ytcenter.player.getConfig().args.dashmpd)));
                   }
                 }
               ]
@@ -21516,7 +21516,7 @@
         uw.setTimeout(ytcenter.effects.playerGlow.update, 1000); // Make sure that the player glow got the state update
         ytcenter.player.updateResize();
         if (ytcenter.player.isAutoResolutionEnabled()) {
-          ytcenter.player.setQuality(ytcenter.player.getQuality(ytcenter.settings.autoVideoQuality, ytcenter.video.streams, (config.args.dash === "1" && config.args.adaptive_fmts ? true : false)));
+          ytcenter.player.setQuality(ytcenter.player.getQuality(ytcenter.settings.autoVideoQuality, ytcenter.video.streams, (config.args.dash === "1" && (config.args.adaptive_fmts || config.args.dashmpd) ? true : false)));
         }
         
         if (api.getVolume && api.getVolume() !== ytcenter.settings.volume && ytcenter.settings.enableVolume) {
@@ -21814,7 +21814,7 @@
         }
       }
       
-      if (config && config.args && ((config.args.url_encoded_fmt_stream_map && config.args.fmt_list) || config.args.adaptive_fmts)) {
+      if (config && config.args && ((config.args.url_encoded_fmt_stream_map && config.args.fmt_list) || config.args.adaptive_fmts || config.dashmpd)) {
         var streams = ytcenter.parseStreams(config.args);
         ytcenter.video.streams = streams;
         try {
@@ -21937,7 +21937,7 @@
             onload: ___callback
           });
         }
-        if (ytcenter.settings.dashPlayback && config.args.adaptive_fmts) {
+        if (ytcenter.settings.dashPlayback && (config.args.adaptive_fmts || config.args.dashmpd)) {
           config.args.dash = "1";
         } else {
           config.args.dash = "0";
@@ -21945,12 +21945,12 @@
         }
         if (ytcenter.settings.enableAutoVideoQuality) {
           // This does not work with the HTML5 player anymore.
-          config.args.vq = ytcenter.player.getQuality(ytcenter.settings.autoVideoQuality, streams, (config.args.dash === "1" && config.args.adaptive_fmts ? true : false));
+          config.args.vq = ytcenter.player.getQuality(ytcenter.settings.autoVideoQuality, streams, (config.args.dash === "1" && (config.args.adaptive_fmts || config.args.dashmpd) ? true : false));
           config.args.suggestedQuality = config.args.vq;
           var vqDim = ytcenter.player.getQualityDimension(config.args.vq);
           if (vqDim) config.args.video_container_override = vqDim;
         }
-        if (config.args.dash === "1" && config.args.adaptive_fmts) {
+        if (config.args.dash === "1" && (config.args.adaptive_fmts || config.args.dashmpd)) {
           ytcenter.player.setRatio(ytcenter.player.calculateRatio(true));
         } else {
           ytcenter.player.setRatio(ytcenter.player.calculateRatio(false));
@@ -22067,7 +22067,7 @@
         }
         
         if (ytcenter.settings.embed_enableAutoVideoQuality) {
-          var vq = ytcenter.player.getQuality(ytcenter.settings.embed_autoVideoQuality, streams, (config.args.dash === "1" && config.args.adaptive_fmts ? true : false));
+          var vq = ytcenter.player.getQuality(ytcenter.settings.embed_autoVideoQuality, streams, (config.args.dash === "1" && (config.args.adaptive_fmts || config.args.dashmpd) ? true : false));
           config.args.vq = vq;
           config.args.suggestedQuality = vq;
           var vqDim = ytcenter.player.getQualityDimension(vq);
@@ -22111,7 +22111,7 @@
         }
         
         if (ytcenter.settings.channel_enableAutoVideoQuality) {
-          var vq = ytcenter.player.getQuality(ytcenter.settings.channel_autoVideoQuality, streams, (config.args.dash === "1" && config.args.adaptive_fmts ? true : false));
+          var vq = ytcenter.player.getQuality(ytcenter.settings.channel_autoVideoQuality, streams, (config.args.dash === "1" && (config.args.adaptive_fmts || config.args.dashmpd) ? true : false));
           config.args.vq = vq;
           config.args.suggestedQuality = vq;
           var vqDim = ytcenter.player.getQualityDimension(vq);
@@ -22758,7 +22758,7 @@
       ytcenter.player.listeners.addEventListener("onStateChange", __c);
       api.loadVideoByPlayerVars(ytcenter.player.getConfig().args);
       
-      if (config.args.dash === "1" && config.args.adaptive_fmts) {
+      if (config.args.dash === "1" && (config.args.adaptive_fmts || config.args.dashmpd)) {
         ytcenter.player.setRatio(ytcenter.player.calculateRatio(true, option));
       } else {
         ytcenter.player.setRatio(ytcenter.player.calculateRatio(false, option));
@@ -23750,7 +23750,7 @@
     };
     ytcenter.player.updated = false;
     ytcenter.player.update = function(config){
-      if (ytcenter.getPage() === "watch" && !config.args.url_encoded_fmt_stream_map && !config.args.adaptive_fmts && !ytcenter.player.isLiveStream(config) && !ytcenter.player.isOnDemandStream(config)) {
+      if (ytcenter.getPage() === "watch" && !config.args.url_encoded_fmt_stream_map && !config.args.adaptive_fmts && !config.args.dashmpd && !ytcenter.player.isLiveStream(config) && !ytcenter.player.isOnDemandStream(config)) {
         config = ytcenter.player.modifyConfig("watch", ytcenter.player.getRawPlayerConfig());
         ytcenter.player.setConfig(config);
       }
@@ -25693,7 +25693,7 @@
           
           var config = ytcenter.player.getConfig();          
           if (ytcenter.player.isAutoResolutionEnabled()) {
-            ytcenter.player.setQuality(ytcenter.player.getQuality(ytcenter.settings.autoVideoQuality, ytcenter.video.streams, (config.args.dash === "1" && config.args.adaptive_fmts ? true : false)));
+            ytcenter.player.setQuality(ytcenter.player.getQuality(ytcenter.settings.autoVideoQuality, ytcenter.video.streams, (config.args.dash === "1" || config.args.adaptive_fmts) ? true : false)));
           }
         });
         ytcenter.unsafe.player = ytcenter.unsafe.player || {};
